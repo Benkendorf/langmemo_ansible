@@ -12,8 +12,14 @@ VAGRANTFILE_API_VERSION = "2"
   end
 
   # Langmemo server
-  config.vm.define "langmemo_vm" do |app|
-    app.vm.hostname = "langmemo_vm"
+  config.vm.define "langmemo-vm" do |app|
+    app.vm.hostname = "langmemo-vm"
     app.vm.network :private_network, ip: "192.168.60.1"
   end
+
+  # Ansible provisioner.
+  config.vm.provision :ansible do |ansible|
+    ansible.playbook = "playbook.yml"
+  end
+
 end
