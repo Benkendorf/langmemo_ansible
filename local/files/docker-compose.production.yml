@@ -1,0 +1,39 @@
+volumes:
+  static:
+  pg_data:
+
+services:
+  db:
+    image: postgres:13.22
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    env_file: .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  backend:
+    image: benkendorf/langmemo_backend
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - static:/app/static
+  gateway:
+    image: benkendorf/langmemo_gateway
+    env_file: .env
+    depends_on:
+      - backend
+    ports:
+      - 8000:80
+    volumes:
+      - static:/static
+  tg_bot:
+    image: benkendorf/langmemo_tg_bot
+    env_file: bot.env
+    depends_on:
+      - backend

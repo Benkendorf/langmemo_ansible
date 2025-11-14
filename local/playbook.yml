@@ -1,29 +1,81 @@
 ---
 - name: Deploy langmemo to local VM
   hosts: all
+  vars_files: vars/main.yml
+  become: yes
 
   tasks:
   - name: Add Docker repository key
-    become: yes
     ansible.builtin.get_url:
       url: https://download.docker.com/linux/ubuntu/gpg
       dest: /etc/apt/keyrings/docker.asc
 
   - name: Add Docker repository
-    become: yes
     ansible.builtin.apt_repository:
       repo: deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu jammy stable
       state: present
 
   - name: Install Docker
-    become: yes
     package:
       name:
         - docker-ce
         - docker-ce-cli
       state: present
+
   - name: Start Docker
-    become: yes
     systemd_service:
       name: docker
       state: started
+
+  - name: Install nginx
+    package:
+      name: nginx
+      state: present
+
+  - name: Send nginx config file to host
+    template:
+      src: templates/langmemo.conf.j2
+      dest: /etc/nginx/sites-available/langmemo.conf
+      mode: '0644'
+
+  - name: Create symlink for nginx config file
+    file:
+      src: /etc/nginx/sites-available/langmemo.conf
+      dest: /etc/nginx/sites-enabled/langmemo.conf
+      owner: root
+      group: root
+      state: link
+
+  - name: Restart nginx
+    systemd_service:
+      name: nginx
+      state: restarted
+
+  - name: Make langmemo directory
+    file:
+      state: directory
+      path: /opt/langmemo
+
+  - name: Send .env file to host
+    template:
+      src: templates/.env.j2
+      dest: /opt/langmemo/.env
+      mode: '0644'
+
+  - name: Copy docker-compose file to host
+    copy:
+      src: files/docker-compose.production.yml
+      dest: /opt/langmemo/docker-compose.yml
+
+  - name: Ensure placeholder bot.env exists
+    copy:
+      dest: /opt/langmemo/bot.env
+      content: |
+
+  - name: Start docker-compose 
+    community.docker.docker_compose_v2:
+      project_src: /opt/langmemo
+      services:
+        - db
+        - backend
+        - gateway
