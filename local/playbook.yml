@@ -32,6 +32,11 @@
       name: nginx
       state: present
 
+  - name: Delete default nginx config
+    file:
+      dest: /etc/nginx/sites-enabled/default
+      state: absent
+
   - name: Send nginx config file to host
     template:
       src: templates/langmemo.conf.j2
@@ -58,13 +63,15 @@
 
   - name: Send .env file to host
     template:
-      src: templates/.env.j2
+      #src: templates/.env.j2
+      src: .env.j2
       dest: /opt/langmemo/.env
       mode: '0644'
 
   - name: Copy docker-compose file to host
     copy:
-      src: files/docker-compose.production.yml
+      #src: files/docker-compose.production.yml
+      src: docker-compose.production.yml
       dest: /opt/langmemo/docker-compose.yml
 
   - name: Ensure placeholder bot.env exists
@@ -79,3 +86,4 @@
         - db
         - backend
         - gateway
+      state: present

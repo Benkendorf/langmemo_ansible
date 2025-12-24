@@ -6,7 +6,7 @@ db_host: db
 db_port: 5432
 secret_key: jiZYdBLkvdiFVz4yUkWdEDsZMiBt7b88hVCrelLx
 debug: True
-allowed_hosts: '127.0.0.1, localhost'
+allowed_hosts: '127.0.0.1, localhost, 192.168.60.10'
 use_sqlite: False
 csrf_cookie_secure: False
 session_cookie_secure: False
