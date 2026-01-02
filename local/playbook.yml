@@ -87,3 +87,13 @@
         - backend
         - gateway
       state: present
+
+  - name: Create Django superuser
+    community.docker.docker_compose_v2_exec:
+      service: backend
+      project_src: /opt/langmemo
+      env:
+        DJANGO_SUPERUSER_USERNAME: "{{ superuser_username }}"
+        DJANGO_SUPERUSER_PASSWORD: "{{ superuser_password }}"
+        DJANGO_SUPERUSER_EMAIL: "{{ superuser_email }}"
+      command: python manage.py createsuperuser --noinput
