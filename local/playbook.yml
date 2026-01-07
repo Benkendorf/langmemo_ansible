@@ -73,13 +73,13 @@
       #src: files/docker-compose.production.yml
       src: docker-compose.production.yml
       dest: /opt/langmemo/docker-compose.yml
-
-  - name: Ensure placeholder bot.env exists
+  
+  - name: Ensure placeholder bot.env exists (needed for docker services launch)
     copy:
       dest: /opt/langmemo/bot.env
-      content: |
+      content: sample_text
 
-  - name: Start docker-compose 
+  - name: Start docker-compose (except for bot)
     community.docker.docker_compose_v2:
       project_src: /opt/langmemo
       services:
@@ -102,7 +102,7 @@
       - botuser
     register: su_output
     # Ignore errors when superuser already exists
-    failed_when: "'That имя пользователя is already taken.' not in su_output.stderr" 
+    failed_when: "(result.rc is defined and result.rc != 0) and ('That имя пользователя is already taken.' not in su_output.stderr)" 
 
   - name: Get JWT tokens
     ansible.builtin.uri:
@@ -114,8 +114,14 @@
       - [ password, "{{ botuser['superuser_password'] }}"]
     register: token_output
 
-  - name: Output tokens
-    debug:
-      msg: "access token: {{ token_output.json.access }}"
-
-  - name
+  - name: Send bot.env file to host
+    template:
+      src: bot.env.j2
+      dest: /opt/langmemo/bot.env
+  
+  - name: Start bot docker
+    community.docker.docker_compose_v2:
+      project_src: /opt/langmemo
+      services:
+        - tg_bot
+      state: present
