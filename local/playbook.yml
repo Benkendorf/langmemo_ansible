@@ -93,7 +93,11 @@
       service: backend
       project_src: /opt/langmemo
       env:
-        DJANGO_SUPERUSER_USERNAME: "{{ superuser_username }}"
-        DJANGO_SUPERUSER_PASSWORD: "{{ superuser_password }}"
-        DJANGO_SUPERUSER_EMAIL: "{{ superuser_email }}"
+        DJANGO_SUPERUSER_USERNAME: "{{ item.superuser_username }}"
+        DJANGO_SUPERUSER_PASSWORD: "{{ item.superuser_password }}"
+        DJANGO_SUPERUSER_EMAIL: "{{ item.superuser_email }}"
       command: python manage.py createsuperuser --noinput
+    loop: "{{ superusers }}"
+    register: su_output
+    # Ignore errors when superuser already exists
+    failed_when: "'That имя пользователя is already taken.' not in su_output.stderr" 

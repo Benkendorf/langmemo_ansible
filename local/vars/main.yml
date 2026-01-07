@@ -13,7 +13,11 @@ session_cookie_secure: False
 secure_hsts_seconds: 3600
 secure_hsts_include_subdomains: False
 
-superuser_username: admin
-superuser_password: Qwerty789
-superuser_email: admin@a.com
+superusers:
+  - superuser_username: admin
+    superuser_password: Qwerty789
+    superuser_email: admin@a.com
 
+  - superuser_username: botuser
+    superuser_password: iamabot
+    superuser_email: bot@a.com
