@@ -2,3 +2,4 @@
 local/.vagrant
 .env
 *.env*
+vars/main.yml
