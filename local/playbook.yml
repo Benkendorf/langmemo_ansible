@@ -75,9 +75,11 @@
       dest: /opt/langmemo/docker-compose.yml
   
   - name: Ensure placeholder bot.env exists (needed for docker services launch)
+    # bot.env file (even empty) needs to be present to start docker-compose
     copy:
       dest: /opt/langmemo/bot.env
       content: sample_text
+      force: false
 
   - name: Start docker-compose (except for bot)
     community.docker.docker_compose_v2:
