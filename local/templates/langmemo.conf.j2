@@ -1,5 +1,5 @@
 server {
-    server_name localhost; 
+    server_name {{ ansible_host }}; 
     location = /favicon.ico { access_log off; log_not_found off; }
 
     location / {
